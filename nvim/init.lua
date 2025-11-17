@@ -255,6 +255,28 @@ local function toggle_colorcolumn_80()
     end
 end
 
+local function is_quickfix_window()
+  local current_win_id = vim.api.nvim_get_current_win()
+  local current_buf_id = vim.api.nvim_win_get_buf(current_win_id)
+
+  local qflist = vim.fn.getqflist({ winid = 0 })
+
+  if qflist and qflist.winid ~= 0 then
+    local quickfix_buf_id = vim.api.nvim_win_get_buf(qflist.winid)
+    return current_buf_id == quickfix_buf_id
+  end
+
+  return false
+end
+
+local function enter_remapping()
+    if is_quickfix_window() then
+        vim.cmd(".cc")
+    else
+        vim.cmd("put =''")
+    end
+end
+
 --interface toggle keymaps
 vim.keymap.set('n', '<leader>n', toggle_num, {})           -- toggle line numbers
 vim.keymap.set('n', '<leader>s', toggle_laststatus, {})    -- toggle vim status line
@@ -266,7 +288,7 @@ vim.keymap.set('n', '<leader>c',  toggle_colorcolumn_80, {})
 --default vim commands qol improvements/remaps
 vim.keymap.set('n', 'J',  '5<C-e>',{})                     -- scroll down
 vim.keymap.set('n', 'K',  '5<C-y>',{})                     -- scroll up
-vim.keymap.set('n', '<Enter>', 'o<ESC>',{})                -- add line below
+vim.keymap.set('n', '<Enter>', enter_remapping,{})         -- add line below or choose option if in quickfix
 vim.keymap.set('n', '<leader><Enter>', 'O<ESC>',{})        -- add line above
 vim.keymap.set('n', '<leader>[', 'o{<CR>}<ESC>k',{})       -- create new cirly braces beneath
 vim.keymap.set('n', '<leader>\'', ':noh<CR>:nohls<CR>',{}) -- go to definition location
