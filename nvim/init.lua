@@ -3,7 +3,8 @@ vim.cmd("set expandtab")
 vim.cmd("set softtabstop=4")
 vim.cmd("set shiftwidth=4")
 vim.cmd("set nu rnu")
-vim.cmd("set colorcolumn=100")
+vim.cmd("set colorcolumn=80")
+vim.cmd("cabb W w")
 vim.cmd("cabb hs split")
 
 vim.cmd("tnoremap <Esc> <C-\\><C-n>")
@@ -243,12 +244,24 @@ local function toggle_diagnostic()
     end
 end
 
+local colorcolumn = true
+local function toggle_colorcolumn_80()
+    if colorcolumn == false then
+        colorcolumn = true
+        vim.cmd("set colorcolumn=80")
+    else
+        colorcolumn = false
+        vim.cmd("set colorcolumn=0")
+    end
+end
+
 --interface toggle keymaps
 vim.keymap.set('n', '<leader>n', toggle_num, {})           -- toggle line numbers
 vim.keymap.set('n', '<leader>s', toggle_laststatus, {})    -- toggle vim status line
 vim.keymap.set('n', '<leader>d', toggle_diagnostic, {})    -- toggle show diagnostic messages
 vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', {})
 vim.keymap.set('n', '<leader>b', ':Neotree filesystem toggle right<CR>', {}) -- open filesystem menu
+vim.keymap.set('n', '<leader>c',  toggle_colorcolumn_80, {})
 
 --default vim commands qol improvements/remaps
 vim.keymap.set('n', 'J',  '5<C-e>',{})                     -- scroll down
