@@ -88,16 +88,6 @@ local plugins= {
         "mbbill/undotree"
     },
     {
-        "mg979/vim-visual-multi",
-        init = function ()
-            vim.g.VM_default_mapping = 0
-            vim.g.VM_maps = {
-                ['Find Under'] = ''
-            }
-            vim.g.VM_add_cursor_at_pos_no_mappings = 1
-        end,
-    },
-    {
         'ThePrimeagen/vim-be-good'
     },
     {
@@ -129,46 +119,34 @@ require("telescope").setup {
 require("telescope").load_extension("ui-select")
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-local lspconfig = require('lspconfig')
 
 require("mason").setup()
-require('lspconfig').clangd.setup{
-    cmd = {"clangd", "cmake", "rust_analyzer"},
+require("mason-lspconfig").setup({
+    ensure_installed = { "lua_ls", "cmake", "jedi_language_server" },
+})
+
+vim.lsp.config['clangd'] = {
+    cmd = { "clangd" },
     filetypes = { "c", "cpp", "cc", "h", "hpp" },
     init_options = {
-        fallbackFlags = {'-std=c++20'}
-    }
-}
-require('lspconfig').rust_analyzer.setup{
-    cmd = {"rust_analyzer"},
-    filetypes = { "rc" }
+        fallbackFlags = { '-std=c++23' }
+    },
 }
 
-require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "cmake", "jedi_language_server"}
+vim.lsp.config['rust_analyzer'] = {
+    cmd = { "rust_analyzer" },
+    filetypes = { "rust", "rc" },
+}
+
+vim.lsp.enable({
+    "lua_ls",
+    "clangd",
+    "rust_analyzer",
+    "cmake",
+    "jedi_language_server",
 })
 
-lspconfig.lua_ls.setup({
-    capabilities = capabilities
-})
 
-lspconfig.clangd.setup({
-    capabilities = capabilities
-})
-
-lspconfig.rust_analyzer.setup({
-    capabilities = capabilities
-})
-
-lspconfig.cmake.setup({
-    capabilities = capabilities
-})
-
-lspconfig.jedi_language_server.setup({
-    capabilities = capabilities
-})
-
--- require("vim-visual-multi").setup()
 require('lualine').setup()
 require("catppuccin").setup()
 vim.cmd("colorscheme catppuccin")
@@ -178,7 +156,7 @@ require("luasnip.loaders.from_vscode").lazy_load()
   cmp.setup({
     snippet = {
       expand = function(args)
-        require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+        require('luasnip').lsp_expand(args.body)
       end,
     },
     window = {
