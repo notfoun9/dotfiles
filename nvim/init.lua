@@ -3,8 +3,10 @@ vim.cmd("set expandtab")
 vim.cmd("set softtabstop=4")
 vim.cmd("set shiftwidth=4")
 vim.cmd("set nu rnu")
-vim.cmd("set colorcolumn=80")
 vim.cmd("cabb W w")
+vim.cmd("cabb Wq wq")
+vim.cmd("cabb Wqa wqa")
+vim.cmd("cabb WQa wqa")
 vim.cmd("cabb hs split")
 
 vim.cmd("tnoremap <Esc> <C-\\><C-n>")
@@ -43,6 +45,12 @@ local plugins= {
         "catppuccin/nvim", name = "catppuccin", priority = 1000
     },
     {
+        "folke/tokyonight.nvim",
+        lazy = false,
+        priority = 1000,
+        opts = {},
+    },
+    {
         'nvim-telescope/telescope.nvim', tag = '0.1.8',
          requires = {'nvim-lua/plenary.nvim'}
     },
@@ -60,6 +68,9 @@ local plugins= {
         dependencies = { 'nvim-tree/nvim-web-devicons' }
     },
     {
+        'nvim-telescope/telescope-ui-select.nvim'
+    },
+    {
         "williamboman/mason.nvim"
     },
     {
@@ -69,23 +80,30 @@ local plugins= {
         "neovim/nvim-lspconfig"
     },
     {
-        'nvim-telescope/telescope-ui-select.nvim'
-    },
-    {
         'hrsh7th/nvim-cmp'
-    },
-    {
-        'L3MON4D3/LuaSnip',
-        dependencies = {
-            'saadparwaiz1/cmp_luasnip',
-            "rafamadriz/friendly-snippets"
-        }
     },
     {
         "hrsh7th/cmp-nvim-lsp"
     },
+    -- {
+    --     'L3MON4D3/LuaSnip',
+    --     dependencies = {
+    --         'saadparwaiz1/cmp_luasnip',
+    --         "rafamadriz/friendly-snippets"
+    --     }
+    -- },
     {
         "mbbill/undotree"
+    },
+    {
+        "mg979/vim-visual-multi",
+        init = function ()
+            vim.g.VM_default_mapping = 0
+            vim.g.VM_maps = {
+                ['Find Under'] = ''
+            }
+            vim.g.VM_add_cursor_at_pos_no_mappings = 1
+        end,
     },
     {
         'ThePrimeagen/vim-be-good'
@@ -105,9 +123,10 @@ local plugins= {
     },
 }
 
+
 -- Setup lazy.nvim
-require("lazy").setup(plugins, opts)
-local builtin = require("telescope.builtin")
+require("lazy").setup(plugins, {})
+local _ = require("telescope.builtin")
 require("telescope").setup {
   extensions = {
     ["ui-select"] = {
@@ -119,36 +138,47 @@ require("telescope").setup {
 require("telescope").load_extension("ui-select")
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
+local lspconfig = require('lspconfig')
 
 require("mason").setup()
+require('lspconfig').clangd.setup{
+    cmd = {"clangd"},
+    filetypes = { "c", "cpp", "cc", "h", "hpp" }
+}
+
+require('lspconfig').rust_analyzer.setup{
+    cmd = {"rust_analyzer"},
+    filetypes = { "rc" }
+}
+
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "cmake", "jedi_language_server" },
+    ensure_installed = { "lua_ls", "cmake", "jedi_language_server"}
 })
 
-vim.lsp.config['clangd'] = {
-    cmd = { "clangd" },
-    filetypes = { "c", "cpp", "cc", "h", "hpp" },
-    init_options = {
-        fallbackFlags = { '-std=c++23' }
-    },
-}
-
-vim.lsp.config['rust_analyzer'] = {
-    cmd = { "rust_analyzer" },
-    filetypes = { "rust", "rc" },
-}
-
-vim.lsp.enable({
-    "lua_ls",
-    "clangd",
-    "rust_analyzer",
-    "cmake",
-    "jedi_language_server",
+lspconfig.lua_ls.setup({
+    capabilities = capabilities
 })
 
+lspconfig.clangd.setup({
+    capabilities = capabilities
+})
 
+lspconfig.rust_analyzer.setup({
+    capabilities = capabilities
+})
+
+lspconfig.cmake.setup({
+    capabilities = capabilities
+})
+
+lspconfig.jedi_language_server.setup({
+    capabilities = capabilities
+})
+
+-- require("vim-visual-multi").setup()
 require('lualine').setup()
 require("catppuccin").setup()
+require("tokyonight").setup()
 vim.cmd("colorscheme catppuccin")
 
 local cmp = require'cmp'
@@ -156,7 +186,7 @@ require("luasnip.loaders.from_vscode").lazy_load()
   cmp.setup({
     snippet = {
       expand = function(args)
-        require('luasnip').lsp_expand(args.body)
+        require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
       end,
     },
     window = {
@@ -185,7 +215,7 @@ require("luasnip.loaders.from_vscode").lazy_load()
     }
   })
 
-local status = 3
+local status = 1
 local function toggle_laststatus()
     if status == 0 then
         status = 1
@@ -205,13 +235,13 @@ local function toggle_num()
         vim.cmd("set number")
         vim.cmd("set relativenumber")
     else
-        num = true
+        num = false
         vim.cmd("set relativenumber!")
         vim.cmd("set number!")
     end
 end
 
-local show_diagnostic = true
+local show_diagnostic = false
 local function toggle_diagnostic()
     if show_diagnostic == false then
         show_diagnostic = true
@@ -222,7 +252,7 @@ local function toggle_diagnostic()
     end
 end
 
-local colorcolumn = true
+local colorcolumn = false
 local function toggle_colorcolumn_80()
     if colorcolumn == false then
         colorcolumn = true
