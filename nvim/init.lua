@@ -146,55 +146,79 @@ require("telescope").setup {
 require("telescope").load_extension("ui-select")
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-local lspconfig = require('lspconfig')
 
 require("mason").setup()
-require('lspconfig').clangd.setup{
-    cmd = {"clangd"},
-    flogs = {"-std=c++23"},
-    filetypes = { "c", "cpp", "cc", "h", "hpp" }
-}
 
-require('lspconfig').rust_analyzer.setup{
-    cmd = {"rust_analyzer"},
-    filetypes = { "rc" }
-}
+-- Define common settings
+local on_attach = function(client, bufnr)
+    -- You can add common keymaps or settings here if needed
+    -- For example:
+    -- local opts = { buffer = bufnr }
+    -- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+end
 
-require('lspconfig').gopls.setup{
-    cmd = {"gopls"},
-    filetypes = { "go" }
-}
+-- Configure each server using the new API
+vim.lsp.config('clangd', {
+    cmd = { "clangd" },
+    filetypes = { "c", "cpp", "cc", "h", "hpp" },
+    capabilities = capabilities,
+    on_attach = on_attach,
+    -- Add any clangd-specific settings here
+})
 
+vim.lsp.config('rust_analyzer', {
+    cmd = { "rust_analyzer" },
+    filetypes = { "rust" },  -- Fixed: should be "rust", not "rc"
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
+vim.lsp.config('gopls', {
+    cmd = { "gopls" },
+    filetypes = { "go" },
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
+vim.lsp.config('lua_ls', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+    settings = {
+        Lua = {
+            runtime = { version = 'LuaJIT' },
+            diagnostics = { globals = { 'vim' } },
+            workspace = {
+                library = vim.api.nvim_get_runtime_file("", true),
+                checkThirdParty = false,
+            },
+            telemetry = { enable = false },
+        }
+    }
+})
+
+vim.lsp.config('cmake', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
+vim.lsp.config('jedi_language_server', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
+-- Enable all configured servers
+vim.lsp.enable({
+    'clangd',
+    'rust_analyzer',
+    'gopls',
+    'lua_ls',
+    'cmake',
+    'jedi_language_server',
+})
+
+-- Mason LSP config remains for ensuring installations
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls" }
-})
-
-lspconfig.lua_ls.setup({
-    capabilities = capabilities
-})
-
-lspconfig.clangd.setup({
-    capabilities = capabilities
-})
-
-lspconfig.gopls.setup({
-    capabilities = capabilities
-})
-
-lspconfig.gopls.setup({
-    capabilities = capabilities
-})
-
-lspconfig.rust_analyzer.setup({
-    capabilities = capabilities
-})
-
-lspconfig.cmake.setup({
-    capabilities = capabilities
-})
-
-lspconfig.jedi_language_server.setup({
-    capabilities = capabilities
+    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls" },
 })
 
 -- require("vim-visual-multi").setup()
