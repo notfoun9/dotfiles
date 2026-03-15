@@ -4,6 +4,7 @@ vim.cmd("set softtabstop=4")
 vim.cmd("set shiftwidth=4")
 vim.cmd("set nu rnu")
 vim.cmd("cabb W w")
+vim.cmd("cabb Wa wa")
 vim.cmd("cabb Wq wq")
 vim.cmd("cabb Wqa wqa")
 vim.cmd("cabb WQa wqa")
@@ -361,6 +362,24 @@ local function close()
     end
 end
 
+local codestyle = "new_string"
+local function toggle_codestyle()
+    if codestyle == "new_string" then
+        codestyle = "current_string"
+    else
+        codestyle = "new_string"
+    end
+end
+
+local function create_curly_braces()
+    if codestyle == "new_string" then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("o{<CR>}<ESC>O", true, true, true), 'n', false)
+    else
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("A {<ESC>o}<ESC>O", true, true, true), 'n', false)
+    end
+end
+
+
 --single untyped keymap
 vim.keymap.set('n', '<leader>e', ':te<CR>amake -C build<CR>', {})
 
@@ -374,8 +393,10 @@ vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', {})
 vim.keymap.set('n', '<leader>b', ':Neotree filesystem toggle right<CR>', {}) -- open filesystem menu
 vim.keymap.set('n', '<leader>c',  toggle_colorcolumn_80, {})
 
+vim.keymap.set('n', '<leader>{', toggle_codestyle,{})
+vim.keymap.set('n', '<leader>[', create_curly_braces,{})
+
 --default vim commands qol improvements/remaps
-vim.keymap.set('n', 'J',  '5<C-e>',{})                     -- scroll down
 vim.keymap.set('n', 'J',  '5<C-e>',{})                     -- scroll down
 vim.keymap.set('n', 'K',  '5<C-y>',{})                     -- scroll up
 vim.keymap.set('n', '<Enter>', enter_remapping,{})         -- add line below or choose option if in quickfix
@@ -400,7 +421,6 @@ vim.keymap.set('n', '<leader>m', ':Telescope marks theme=ivy<CR>', {})          
 --lsp keymaps
 vim.keymap.set('n', '<leader>i', vim.lsp.buf.hover, {})
 vim.keymap.set('n', '<leader>\\', vim.lsp.buf.definition, {})
-
 
 --harpoon keymaps
 vim.keymap.set('n', '<leader>;', ':lua require("harpoon.ui").toggle_quick_menu()<CR>', {})
