@@ -9,6 +9,13 @@ vim.cmd("cabb Wqa wqa")
 vim.cmd("cabb WQa wqa")
 vim.cmd("cabb hs split")
 
+vim.diagnostic.config({
+    virtual_text = false,
+    signs = false,
+    update_in_insert = false,
+    underline = false
+})
+
 vim.cmd("tnoremap <Esc> <C-\\><C-n>")
 vim.g.mapleader = " "
 
@@ -85,13 +92,13 @@ local plugins= {
     {
         "hrsh7th/cmp-nvim-lsp"
     },
-    -- {
-    --     'L3MON4D3/LuaSnip',
-    --     dependencies = {
-    --         'saadparwaiz1/cmp_luasnip',
-    --         "rafamadriz/friendly-snippets"
-    --     }
-    -- },
+    {
+        'L3MON4D3/LuaSnip',
+        dependencies = {
+            'saadparwaiz1/cmp_luasnip',
+            "rafamadriz/friendly-snippets"
+        }
+    },
     {
         "mbbill/undotree"
     },
@@ -143,6 +150,7 @@ local lspconfig = require('lspconfig')
 require("mason").setup()
 require('lspconfig').clangd.setup{
     cmd = {"clangd"},
+    flogs = {"-std=c++23"},
     filetypes = { "c", "cpp", "cc", "h", "hpp" }
 }
 
@@ -151,8 +159,13 @@ require('lspconfig').rust_analyzer.setup{
     filetypes = { "rc" }
 }
 
+require('lspconfig').gopls.setup{
+    cmd = {"gopls"},
+    filetypes = { "go" }
+}
+
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "cmake", "jedi_language_server"}
+    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls" }
 })
 
 lspconfig.lua_ls.setup({
@@ -160,6 +173,14 @@ lspconfig.lua_ls.setup({
 })
 
 lspconfig.clangd.setup({
+    capabilities = capabilities
+})
+
+lspconfig.gopls.setup({
+    capabilities = capabilities
+})
+
+lspconfig.gopls.setup({
     capabilities = capabilities
 })
 
@@ -245,10 +266,20 @@ local show_diagnostic = false
 local function toggle_diagnostic()
     if show_diagnostic == false then
         show_diagnostic = true
-        vim.diagnostic.config({virtual_text = true})
+        vim.diagnostic.config({
+            virtual_text = true,
+            signs = true,
+            update_in_insert = true,
+            underline = true
+        })
     else
         show_diagnostic = false
-        vim.diagnostic.config({virtual_text = false})
+        vim.diagnostic.config({
+            virtual_text = false,
+            signs = false,
+            update_in_insert = false,
+            underline = false
+        })
     end
 end
 
@@ -261,6 +292,39 @@ local function toggle_colorcolumn_80()
         colorcolumn = false
         vim.cmd("set colorcolumn=0")
     end
+end
+
+local zoomed = false
+local function zoom()
+    zoomed = true
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>|", true, true, true), 'n', false)
+end
+
+local function unzoom()
+    zoomed = false
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>=", true, true, true), 'n', false)
+end
+
+local function toggle_zoom()
+    if zoomed == false then
+        zoom()
+    else
+        unzoom()
+    end
+end
+
+local function goto_left_window()
+    if zoomed then
+        unzoom()
+    end
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>h", true, true, true), 'n', false)
+end
+
+local function goto_right_window()
+    if zoomed then
+        unzoom()
+    end
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>l", true, true, true), 'n', false)
 end
 
 local function is_quickfix_window()
@@ -285,7 +349,24 @@ local function enter_remapping()
     end
 end
 
+local function is_current_window_terminal()
+    return vim.bo.buftype == 'terminal'
+end
+
+local function close()
+    if is_current_window_terminal() == true then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("aexit<CR>", true, true, true), 'n', false)
+    else
+        vim.cmd('quit')
+    end
+end
+
+--single untyped keymap
+vim.keymap.set('n', '<leader>e', ':te<CR>amake -C build<CR>', {})
+
 --interface toggle keymaps
+vim.keymap.set('n', '<leader>q', close, {})
+vim.keymap.set('n', '<leader>t', ':wa<CR>:te<CR>', {})
 vim.keymap.set('n', '<leader>n', toggle_num, {})           -- toggle line numbers
 vim.keymap.set('n', '<leader>s', toggle_laststatus, {})    -- toggle vim status line
 vim.keymap.set('n', '<leader>d', toggle_diagnostic, {})    -- toggle show diagnostic messages
@@ -295,17 +376,18 @@ vim.keymap.set('n', '<leader>c',  toggle_colorcolumn_80, {})
 
 --default vim commands qol improvements/remaps
 vim.keymap.set('n', 'J',  '5<C-e>',{})                     -- scroll down
+vim.keymap.set('n', 'J',  '5<C-e>',{})                     -- scroll down
 vim.keymap.set('n', 'K',  '5<C-y>',{})                     -- scroll up
 vim.keymap.set('n', '<Enter>', enter_remapping,{})         -- add line below or choose option if in quickfix
 vim.keymap.set('n', '<leader><Enter>', 'O<ESC>',{})        -- add line above
 vim.keymap.set('n', '<leader>[', 'o{<CR>}<ESC>k',{})       -- create new cirly braces beneath
 vim.keymap.set('n', '<leader>\'', ':noh<CR>:nohls<CR>',{}) -- go to definition location
 vim.keymap.set('n', '<leader>v',  ':vs<CR><C-w>l',{})      -- vertical split and go left
-vim.keymap.set('n', '<leader>q',  ':q<CR>',{})             -- quit
 
 --motion keymaps
-vim.keymap.set('n', '<leader>l',  '<C-w>l',{})
-vim.keymap.set('n', '<leader>h',  '<C-w>h',{})
+vim.keymap.set('n', '<leader>z',  toggle_zoom,{})
+vim.keymap.set('n', '<leader>l',  goto_right_window,{})
+vim.keymap.set('n', '<leader>h',  goto_left_window,{})
 vim.keymap.set('n', '<leader>j',  '<C-w>j',{})
 vim.keymap.set('n', '<leader>k',  '<C-w>k',{})
 
@@ -318,6 +400,7 @@ vim.keymap.set('n', '<leader>m', ':Telescope marks theme=ivy<CR>', {})          
 --lsp keymaps
 vim.keymap.set('n', '<leader>i', vim.lsp.buf.hover, {})
 vim.keymap.set('n', '<leader>\\', vim.lsp.buf.definition, {})
+
 
 --harpoon keymaps
 vim.keymap.set('n', '<leader>;', ':lua require("harpoon.ui").toggle_quick_menu()<CR>', {})
@@ -341,3 +424,5 @@ vim.keymap.set({'x', 'o'},      's', '<Plug>(leap)')
 vim.keymap.set({'n', 'x', 'o'}, 's',  '<Plug>(leap-forward)')
 vim.keymap.set({'n', 'x', 'o'}, 'S',  '<Plug>(leap-backward)')
 vim.keymap.set({'n', 'x', 'o'}, 'gs', '<Plug>(leap-from-window)')
+vim.keymap.set('n', '<leader>.', function() vim.lsp.buf.code_action() end, {})
+
