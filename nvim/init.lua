@@ -397,9 +397,9 @@ end
 
 local function create_curly_braces()
     if codestyle == "new_string" then
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("o{<CR>}<ESC>O", true, true, true), 'n', false)
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("o{<CR>}<ESC>k$", true, true, true), 'n', false)
     else
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("A {<ESC>o}<ESC>O", true, true, true), 'n', false)
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("A {<ESC>o}<ESC>k$", true, true, true), 'n', false)
     end
 end
 
@@ -417,7 +417,7 @@ vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', {})
 vim.keymap.set('n', '<leader>b', ':Neotree filesystem toggle right<CR>', {}) -- open filesystem menu
 vim.keymap.set('n', '<leader>c',  toggle_colorcolumn_80, {})
 
-vim.keymap.set('n', '<leader>{', toggle_codestyle,{})
+vim.keymap.set('n', '<leader>]', toggle_codestyle,{})
 vim.keymap.set('n', '<leader>[', create_curly_braces,{})
 
 --default vim commands qol improvements/remaps
@@ -425,7 +425,6 @@ vim.keymap.set('n', 'J',  '5<C-e>',{})                     -- scroll down
 vim.keymap.set('n', 'K',  '5<C-y>',{})                     -- scroll up
 vim.keymap.set('n', '<Enter>', enter_remapping,{})         -- add line below or choose option if in quickfix
 vim.keymap.set('n', '<leader><Enter>', 'O<ESC>',{})        -- add line above
-vim.keymap.set('n', '<leader>[', 'o{<CR>}<ESC>k',{})       -- create new cirly braces beneath
 vim.keymap.set('n', '<leader>\'', ':noh<CR>:nohls<CR>',{}) -- go to definition location
 vim.keymap.set('n', '<leader>v',  ':vs<CR><C-w>l',{})      -- vertical split and go left
 
