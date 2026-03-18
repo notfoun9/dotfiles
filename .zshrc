@@ -81,8 +81,9 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 alias ls='ls --color'
 alias ll='ls -lah --color'
 alias vim='nvim'
+alias py="python3"
 alias c='clear'
 alias q="exit"
 
 eval "$(fzf --zsh)"
-
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
