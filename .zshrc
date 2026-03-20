@@ -78,12 +78,11 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
-alias ls='ls --color'
-alias ll='ls -lah --color'
+alias ls='lsd --color auto'
+alias ll='lsd -lah --color auto'
 alias vim='nvim'
 alias py="python3"
 alias c='clear'
 alias q="exit"
 
 eval "$(fzf --zsh)"
-export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
