@@ -163,7 +163,6 @@ vim.lsp.config('clangd', {
     filetypes = { "c", "cpp", "cc", "h", "hpp" },
     capabilities = capabilities,
     on_attach = on_attach,
-    -- Add any clangd-specific settings here
 })
 
 vim.lsp.config('rust_analyzer', {
@@ -319,8 +318,21 @@ local function toggle_colorcolumn_80()
     end
 end
 
+local filesystem_opened = false
+local function toggle_filesystem()
+    if filesystem_opened == true then
+        filesystem_opened = false
+    else
+        filesystem_opened = true
+    end
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":Neotree filesystem toggle right<CR>", true, true, true), 'n', false)
+end
+
 local zoomed = false
 local function zoom()
+    if filesystem_opened == true then
+        toggle_filesystem()
+    end
     zoomed = true
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>|", true, true, true), 'n', false)
 end
@@ -414,7 +426,7 @@ vim.keymap.set('n', '<leader>n', toggle_num, {})           -- toggle line number
 vim.keymap.set('n', '<leader>s', toggle_laststatus, {})    -- toggle vim status line
 vim.keymap.set('n', '<leader>d', toggle_diagnostic, {})    -- toggle show diagnostic messages
 vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', {})
-vim.keymap.set('n', '<leader>b', ':Neotree filesystem toggle right<CR>', {}) -- open filesystem menu
+vim.keymap.set('n', '<leader>b', toggle_filesystem, {})
 vim.keymap.set('n', '<leader>c',  toggle_colorcolumn_80, {})
 
 vim.keymap.set('n', '<leader>]', toggle_codestyle,{})
