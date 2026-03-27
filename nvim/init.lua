@@ -205,6 +205,11 @@ vim.lsp.config('jedi_language_server', {
     on_attach = on_attach,
 })
 
+vim.lsp.config('asm_lsp', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
 -- Enable all configured servers
 vim.lsp.enable({
     'clangd',
@@ -213,11 +218,12 @@ vim.lsp.enable({
     'lua_ls',
     'cmake',
     'jedi_language_server',
+    'asm_lsp'
 })
 
 -- Mason LSP config remains for ensuring installations
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls" },
+    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls", "asm_lsp" },
 })
 
 -- require("vim-visual-multi").setup()
