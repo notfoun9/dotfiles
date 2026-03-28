@@ -86,3 +86,11 @@ alias c='clear'
 alias q="exit"
 
 eval "$(fzf --zsh)"
+if [ "$(uname -s)" = "Darwin" ]; then
+    alias cat="bat"
+else
+    alias cat="batcat"
+    alias bat="batcat"
+fi
+
+export TERM=xterm-256color
