@@ -560,3 +560,7 @@ vim.keymap.set({'n', 'x', 'o'}, 'S',  '<Plug>(leap-backward)')
 vim.keymap.set({'n', 'x', 'o'}, 'gs', '<Plug>(leap-from-window)')
 vim.keymap.set('n', '<leader>.', function() vim.lsp.buf.code_action() end, {})
 
+local highlights = { "Normal", "NormalFloat", "NonText", "SignColumn" }
+for _, name in ipairs(highlights) do
+  vim.api.nvim_set_hl(0, name, { bg = "none" })
+end
