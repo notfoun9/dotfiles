@@ -228,7 +228,7 @@ vim.lsp.config('clangd', {
 
 vim.lsp.config('rust_analyzer', {
     cmd = { "rust_analyzer" },
-    filetypes = { "rust" },  -- Fixed: should be "rust", not "rc"
+    filetypes = { "rust" },
     capabilities = capabilities,
     on_attach = on_attach,
 })
@@ -271,6 +271,16 @@ vim.lsp.config('asm_lsp', {
     on_attach = on_attach,
 })
 
+vim.lsp.config('html', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
+vim.lsp.config('ts_ls', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
 -- Enable all configured servers
 vim.lsp.enable({
     'clangd',
@@ -279,12 +289,14 @@ vim.lsp.enable({
     'lua_ls',
     'cmake',
     'jedi_language_server',
-    'asm_lsp'
+    'asm_lsp',
+    'html',
+    'ts_ls',
 })
 
 -- Mason LSP config remains for ensuring installations
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls", "asm_lsp" },
+    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls", "asm_lsp", "html", "ts_ls" },
 })
 
 -- require("vim-visual-multi").setup()
