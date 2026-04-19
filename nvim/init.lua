@@ -256,7 +256,9 @@ vim.lsp.config('lua_ls', {
     }
 })
 
-vim.lsp.config('cmake', {
+vim.lsp.config('neocmake', {
+    cmd = { "neocmakelsp", "stdio" },
+    filetypes = { "cmake" },
     capabilities = capabilities,
     on_attach = on_attach,
 })
@@ -287,7 +289,7 @@ vim.lsp.enable({
     'rust_analyzer',
     'gopls',
     'lua_ls',
-    'cmake',
+    'neocmake',
     'jedi_language_server',
     'asm_lsp',
     'html',
@@ -296,7 +298,7 @@ vim.lsp.enable({
 
 -- Mason LSP config remains for ensuring installations
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "cmake", "jedi_language_server", "gopls", "asm_lsp", "html", "ts_ls" },
+    ensure_installed = { "lua_ls", "neocmake", "jedi_language_server", "gopls", "asm_lsp", "html", "ts_ls" },
 })
 
 -- require("vim-visual-multi").setup()
