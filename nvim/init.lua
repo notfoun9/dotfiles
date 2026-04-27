@@ -184,14 +184,27 @@ local plugins= {
         'ThePrimeagen/harpoon'
     },
     {
-        'ggandor/leap.nvim',
-        dependencies = {
-            'tpope/vim-repeat'
-        },
-        lazy = false,
+      "folke/flash.nvim",
+      keys = {
+        { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end },
+        { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end },
+      },
+    },
+    {
+        "xiyaowong/transparent.nvim",
+        config = function()
+            require("transparent").setup({
+              groups = {
+                'Normal', 'NormalNC', 'Comment', 'Constant', 'Special', 'Identifier',
+                'Statement', 'PreProc', 'Type', 'Underlined', 'Todo', 'String', 'Function',
+                'Conditional', 'Repeat', 'Operator', 'Structure', 'LineNr', 'NonText',
+                'SignColumn', 'CursorLine', 'CursorLineNr', 'StatusLine', 'StatusLineNC',
+                'EndOfBuffer',
+              },
+            })
+        end
     },
 }
-
 
 -- Setup lazy.nvim
 require("lazy").setup(plugins, {})
@@ -268,17 +281,19 @@ vim.lsp.config('jedi_language_server', {
     on_attach = on_attach,
 })
 
-vim.lsp.config('asm_lsp', {
-    capabilities = capabilities,
-    on_attach = on_attach,
-})
-
 vim.lsp.config('html', {
     capabilities = capabilities,
     on_attach = on_attach,
 })
 
 vim.lsp.config('ts_ls', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+})
+
+vim.lsp.config('bashls', {
+    cmd = { "bashls" },
+    filetypes = { "sh", "Makefile" },
     capabilities = capabilities,
     on_attach = on_attach,
 })
@@ -291,14 +306,14 @@ vim.lsp.enable({
     'lua_ls',
     'neocmake',
     'jedi_language_server',
-    'asm_lsp',
     'html',
     'ts_ls',
+    'bashls',
 })
 
 -- Mason LSP config remains for ensuring installations
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "neocmake", "jedi_language_server", "gopls", "asm_lsp", "html", "ts_ls" },
+    ensure_installed = { "lua_ls", "neocmake", "jedi_language_server", "gopls", "html", "ts_ls", "bashls" },
 })
 
 -- require("vim-visual-multi").setup()
@@ -552,17 +567,10 @@ vim.keymap.set('n', '<leader>8', ':lua require("harpoon.ui").nav_file(8)<CR>', {
 vim.keymap.set('n', '<leader>9', ':lua require("harpoon.ui").nav_file(9)<CR>', {})
 vim.keymap.set('n', '<leader>0', ':lua require("harpoon.ui").nav_file(10)<CR>', {})
 
---leap keymaps (":h leap-custom-mapping" for reference)
-vim.keymap.set({'n', 'x', 'o'}, 's', '<Plug>(leap)')
-vim.keymap.set('n',             'S', '<Plug>(leap-from-window)')
-vim.keymap.set('n',             's', '<Plug>(leap-anywhere)')
-vim.keymap.set({'x', 'o'},      's', '<Plug>(leap)')
-vim.keymap.set({'n', 'x', 'o'}, 's',  '<Plug>(leap-forward)')
-vim.keymap.set({'n', 'x', 'o'}, 'S',  '<Plug>(leap-backward)')
-vim.keymap.set({'n', 'x', 'o'}, 'gs', '<Plug>(leap-from-window)')
-vim.keymap.set('n', '<leader>.', function() vim.lsp.buf.code_action() end, {})
-
-local highlights = { "Normal", "NormalFloat", "NonText", "SignColumn" }
-for _, name in ipairs(highlights) do
-  vim.api.nvim_set_hl(0, name, { bg = "none" })
-end
+require("flash").setup({
+  modes = {
+    char = {
+      enabled = false,
+    },
+  },
+})
